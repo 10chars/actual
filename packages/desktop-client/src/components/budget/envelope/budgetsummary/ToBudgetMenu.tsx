@@ -47,7 +47,7 @@ export function ToBudgetMenu({
       ? [
           {
             name: 'buffer',
-            text: t('Hold for next month'),
+            text: t('Hold for next period'),
           },
         ]
       : []),
@@ -71,7 +71,7 @@ export function ToBudgetMenu({
       ? [
           {
             name: 'reset-buffer',
-            text: t('Reset next month’s buffer'),
+            text: t('Reset next period\'s buffer'),
           },
         ]
       : []),

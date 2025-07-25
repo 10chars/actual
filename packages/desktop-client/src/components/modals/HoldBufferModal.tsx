@@ -42,7 +42,7 @@ export function HoldBufferModal({ onSubmit }: HoldBufferModalProps) {
       {({ state: { close } }) => (
         <>
           <ModalHeader
-            title={t('Hold for next month')}
+            title={t('Hold for next period')}
             rightContent={<ModalCloseButton onPress={close} />}
           />
           <View>

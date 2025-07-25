@@ -12,6 +12,7 @@ import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
 import * as monthUtils from 'loot-core/shared/months';
+import * as periodUtils from 'loot-core/shared/periods';
 
 import { type MonthBounds } from './MonthsContext';
 
@@ -117,7 +118,7 @@ export const MonthPicker = ({
             marginRight: '12px',
           }}
         >
-          <View title={t('Previous month')}>
+          <View title={t('Previous period')}>
             <SvgCheveronLeft
               style={{
                 width: 16,
@@ -127,7 +128,8 @@ export const MonthPicker = ({
           </View>
         </Link>
         {range.map((month, idx) => {
-          const monthName = monthUtils.format(month, 'MMM', locale);
+          const periodNum = periodUtils.getPeriodNumber(month);
+          const monthName = `P${periodNum}`; // P1, P2, etc.
           const selected =
             idx >= firstSelectedIndex && idx <= lastSelectedIndex;
 
@@ -244,7 +246,7 @@ export const MonthPicker = ({
             marginLeft: '12px',
           }}
         >
-          <View title={t('Next month')}>
+          <View title={t('Next period')}>
             <SvgCheveronRight
               style={{
                 width: 16,

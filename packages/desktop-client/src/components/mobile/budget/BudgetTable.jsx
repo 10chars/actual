@@ -24,6 +24,7 @@ import { View } from '@actual-app/components/view';
 import { AutoTextSize } from 'auto-text-size';
 
 import * as monthUtils from 'loot-core/shared/months';
+import * as periodUtils from 'loot-core/shared/periods';
 import { q } from 'loot-core/shared/query';
 import { groupById } from 'loot-core/shared/util';
 
@@ -961,7 +962,7 @@ function MonthSelector({
       }}
     >
       <Button
-        aria-label={t('Previous month')}
+        aria-label={t('Previous period')}
         variant="bare"
         onPress={() => {
           if (prevEnabled) {
@@ -985,11 +986,11 @@ function MonthSelector({
         data-month={month}
       >
         <Text style={styles.underlinedText}>
-          {monthUtils.format(month, 'MMMM ‘yy', locale)}
+          {periodUtils.formatPeriodWithYear(month, true)}
         </Text>
       </Button>
       <Button
-        aria-label={t('Next month')}
+        aria-label={t('Next period')}
         variant="bare"
         onPress={() => {
           if (nextEnabled) {

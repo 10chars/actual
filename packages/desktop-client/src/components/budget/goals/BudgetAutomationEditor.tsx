@@ -57,8 +57,8 @@ const displayTypeToDescription = {
   historical: (
     <Trans>
       Add an amount to this category each month based on the values from
-      previous months. For example, you can copy the amount from a year ago to
-      budget for an annual expense, or budget the average of the last 3 months
+              previous periods. For example, you can copy the amount from a year ago to
+              budget for an annual expense, or budget the average of the last 3 periods
       to account for seasonal changes.
     </Trans>
   ),

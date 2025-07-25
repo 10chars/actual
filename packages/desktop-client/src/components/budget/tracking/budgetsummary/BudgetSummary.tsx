@@ -16,6 +16,7 @@ import { View } from '@actual-app/components/view';
 import { css } from '@emotion/css';
 
 import * as monthUtils from 'loot-core/shared/months';
+import * as periodUtils from 'loot-core/shared/periods';
 
 import { BudgetMonthMenu } from './BudgetMonthMenu';
 import { ExpenseTotal } from './ExpenseTotal';
@@ -102,8 +103,8 @@ export function BudgetSummary({ month }: BudgetSummaryProps) {
               variant="bare"
               aria-label={
                 collapsed
-                  ? t('Expand month summary')
-                  : t('Collapse month summary')
+                  ? t('Expand period summary')
+                  : t('Collapse period summary')
               }
               className="hover-visible"
               onPress={onToggleSummaryCollapse}
@@ -126,7 +127,7 @@ export function BudgetSummary({ month }: BudgetSummaryProps) {
               textDecorationSkip: 'ink',
             })}
           >
-            {monthUtils.format(month, 'MMMM', locale)}
+            {periodUtils.formatPeriodRange(month)}
           </div>
 
           <View

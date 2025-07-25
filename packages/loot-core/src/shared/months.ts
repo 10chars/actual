@@ -237,9 +237,42 @@ export function isCurrentDay(day: DateLike): boolean {
 // TODO: This doesn't really fit in this module anymore, should
 // probably live elsewhere
 export function bounds(month: DateLike): { start: number; end: number } {
+  const monthDate = _parse(month);
+  const year = monthDate.getFullYear();
+  const monthIndex = monthDate.getMonth(); // 0-based
+  
+  // Helper function to get payday (15th with weekend adjustments)
+  const getPayday = (year: number, month: number) => {
+    const fifteenth = new Date(year, month, 15, 12);
+    const dayOfWeek = fifteenth.getDay();
+    
+    if (dayOfWeek === 0) {
+      // Sunday: payday is Friday the 13th
+      return new Date(year, month, 13, 12);
+    } else if (dayOfWeek === 6) {
+      // Saturday: payday is Friday the 14th
+      return new Date(year, month, 14, 12);
+    } else {
+      // Normal case: Mon-Fri, payday is the 15th
+      return fifteenth;
+    }
+  };
+
+  // Calculate current month's payday
+  const payPeriodStart = getPayday(year, monthIndex);
+  
+  // Calculate next month's payday
+  const nextMonth = monthIndex + 1;
+  const nextYear = nextMonth > 11 ? year + 1 : year;
+  const nextMonthIndex = nextMonth > 11 ? 0 : nextMonth;
+  const nextPayday = getPayday(nextYear, nextMonthIndex);
+  
+  // Period ends the day before next payday
+  const payPeriodEnd = new Date(nextPayday.getTime() - 24 * 60 * 60 * 1000); // subtract 1 day
+  
   return {
-    start: parseInt(d.format(d.startOfMonth(_parse(month)), 'yyyyMMdd')),
-    end: parseInt(d.format(d.endOfMonth(_parse(month)), 'yyyyMMdd')),
+    start: parseInt(d.format(payPeriodStart, 'yyyyMMdd')),
+    end: parseInt(d.format(payPeriodEnd, 'yyyyMMdd')),
   };
 }
 

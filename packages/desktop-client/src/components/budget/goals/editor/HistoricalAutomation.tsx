@@ -39,8 +39,8 @@ export const HistoricalAutomation = ({
           id="mode-field"
           key="mode-picker"
           options={[
-            ['copy', t('Copy a previous month')],
-            ['average', t('Average of previous months')],
+                ['copy', t('Copy a previous period')],
+    ['average', t('Average of previous periods')],
           ]}
           value={template.type}
           onChange={type => dispatch(updateTemplate({ type }))}

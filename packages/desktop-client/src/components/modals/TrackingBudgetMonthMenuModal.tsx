@@ -14,6 +14,7 @@ import { View } from '@actual-app/components/view';
 import { css } from '@emotion/css';
 
 import * as monthUtils from 'loot-core/shared/months';
+import * as periodUtils from 'loot-core/shared/periods';
 
 import { BudgetMonthMenu } from '@desktop-client/components/budget/tracking/budgetsummary/BudgetMonthMenu';
 import {
@@ -67,7 +68,7 @@ export function TrackingBudgetMonthMenuModal({
     setShowMore(!showMore);
   };
 
-  const displayMonth = monthUtils.format(month, 'MMMM ‘yy', locale);
+  const displayMonth = periodUtils.formatPeriodWithYear(month, true);
 
   return (
     <Modal
@@ -170,7 +171,7 @@ export function TrackingBudgetMonthMenuModal({
                   close();
                   showUndoNotification({
                     message: t(
-                      '{{displayMonth}} budgets have all been set to last month’s budgeted amounts.',
+                      '{{displayMonth}} budgets have all been set to last period\'s budgeted amounts.',
                       { displayMonth },
                     ),
                   });

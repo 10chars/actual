@@ -133,7 +133,7 @@ export function TotalsList({ prevMonthName, style }: TotalsListProps) {
         </Block>
 
         <Block>
-          <Trans>For next month</Trans>
+          <Trans>For next period</Trans>
         </Block>
       </View>
     </View>

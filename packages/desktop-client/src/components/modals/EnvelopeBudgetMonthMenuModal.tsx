@@ -14,6 +14,7 @@ import { View } from '@actual-app/components/view';
 import { css } from '@emotion/css';
 
 import * as monthUtils from 'loot-core/shared/months';
+import * as periodUtils from 'loot-core/shared/periods';
 
 import { BudgetMonthMenu } from '@desktop-client/components/budget/envelope/budgetsummary/BudgetMonthMenu';
 import {
@@ -66,7 +67,7 @@ export function EnvelopeBudgetMonthMenuModal({
     setShowMore(!showMore);
   };
 
-  const displayMonth = monthUtils.format(month, 'MMMM ‘yy', locale);
+  const displayMonth = periodUtils.formatPeriodWithYear(month, true);
   const { t } = useTranslation();
 
   return (
