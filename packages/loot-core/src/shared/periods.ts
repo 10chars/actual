@@ -29,31 +29,36 @@ export function formatPeriodShort(month: DateLike): string {
  * Format a period for display with more space
  * Returns the actual date range like "Jan 15 - Feb 14"
  */
-export function formatPeriodRange(month: DateLike): string {
+export function formatPeriodRange(month: DateLike, compact = false): string {
   const { start, end } = monthUtils.bounds(month);
   const startDate = d.parse(start.toString(), 'yyyyMMdd', new Date());
   const endDate = d.parse(end.toString(), 'yyyyMMdd', new Date());
   
-  const startFormatted = d.format(startDate, 'MMM d');
-  const endFormatted = d.format(endDate, 'MMM d');
-  
-  return `${startFormatted} - ${endFormatted}`;
+  if (compact) {
+    const startFormatted = d.format(startDate, 'MM/dd');
+    const endFormatted = d.format(endDate, 'MM/dd');
+    return `${startFormatted} - ${endFormatted}`;
+  } else {
+    const startFormatted = d.format(startDate, 'MMM d');
+    const endFormatted = d.format(endDate, 'MMM d');
+    return `${startFormatted} - ${endFormatted}`;
+  }
 }
 
 /**
  * Format a period for display with year context
  * Returns "Period 1 '24" or "Jan 15 - Feb 14 '24"
  */
-export function formatPeriodWithYear(month: DateLike, useRange = false): string {
+export function formatPeriodWithYear(month: DateLike, useRange = false, compact = false): string {
   const monthDate = monthUtils._parse(month);
-  const year = d.format(monthDate, "'yy");
+  const year = d.format(monthDate, 'yy');
   
   if (useRange) {
-    const range = formatPeriodRange(month);
-    return `${range} ${year}`;
+    const range = formatPeriodRange(month, compact);
+    return compact ? range : `${range} '${year}`;
   } else {
     const periodNum = getPeriodNumber(month);
-    return `Period ${periodNum} ${year}`;
+    return `Period ${periodNum} '${year}`;
   }
 }
 

@@ -986,7 +986,7 @@ function MonthSelector({
         data-month={month}
       >
         <Text style={styles.underlinedText}>
-          {periodUtils.formatPeriodWithYear(month, true)}
+          {periodUtils.formatPeriodWithYear(month, true, true)}
         </Text>
       </Button>
       <Button
