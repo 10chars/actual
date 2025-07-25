@@ -71,4 +71,17 @@ export function getPeriodTitle(month: DateLike): string {
   const endFormatted = d.format(endDate, 'MMM d, yyyy');
   
   return `Period ${periodNum} (${startFormatted} - ${endFormatted})`;
+}
+
+/**
+ * Format a period for reports
+ * Takes a period identifier like 202401 and returns "Jan 15 - Feb 14"
+ */
+export function formatPeriodForReports(periodId: number): string {
+  // Convert period ID back to month format for bounds calculation
+  const year = Math.floor(periodId / 100);
+  const month = periodId % 100;
+  const monthStr = `${year}-${String(month).padStart(2, '0')}`;
+  
+  return formatPeriodRange(monthStr);
 } 

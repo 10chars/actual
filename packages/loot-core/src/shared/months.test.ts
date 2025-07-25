@@ -74,4 +74,24 @@ describe('bounds function with pay period logic', () => {
       end: 20240414,   // April 14th, 2024
     });
   });
+
+  test('Japanese holiday adjustment: 15th on Respect for the Aged Day', () => {
+    // September 2025: 15th is Respect for the Aged Day (Monday holiday)
+    // Should move to previous Friday (September 12th)
+    // October 2025: 15th is Wednesday (normal working day)
+    const result = monthUtils.bounds('2025-09');
+    expect(result).toEqual({
+      start: 20250912, // September 12th, 2025 (Friday, holiday adjustment)
+      end: 20251014,   // October 14th, 2025 (day before Oct 15 payday)
+    });
+  });
+
+  test('Normal case after holiday period', () => {
+    // January 2026: 15th is Thursday (normal working day, not a holiday)
+    const result = monthUtils.bounds('2026-01');
+    expect(result).toEqual({
+      start: 20260115, // January 15th, 2026 (Thursday, normal)
+      end: 20260214,   // February 14th, 2026 (day before Feb 15)
+    });
+  });
 });

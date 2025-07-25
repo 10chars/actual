@@ -234,6 +234,70 @@ export function isCurrentDay(day: DateLike): boolean {
   return day === currentDay();
 }
 
+// Japanese holidays that affect payday calculation
+const japaneseHolidays = {
+  // Remainder of 2025 (from July 23)
+  "2025-08-11": { name: "Mountain Day",          isSubstitue: false },
+  "2025-09-15": { name: "Respect for the Aged Day", isSubstitue: false },
+  "2025-09-23": { name: "Autumnal Equinox Day",   isSubstitue: false },
+  "2025-10-13": { name: "Health and Sports Day",  isSubstitue: false },
+  "2025-11-03": { name: "Culture Day",            isSubstitue: false },
+  "2025-11-23": { name: "Labour Thanksgiving Day",       isSubstitue: false },
+  "2025-11-24": { name: "Labour Thanksgiving Day Holiday", isSubstitue: true },
+
+  // All of 2026
+  "2026-01-01": { name: "New Year's Day",         isSubstitue: false },
+  "2026-01-12": { name: "Coming of Age Day",      isSubstitue: false },
+  "2026-02-11": { name: "National Foundation Day",isSubstitue: false },
+  "2026-02-23": { name: "The Emperor's Birthday", isSubstitue: false },
+  "2026-03-20": { name: "Vernal Equinox Day",     isSubstitue: false },
+  "2026-04-29": { name: "Shōwa Day",              isSubstitue: false },
+  "2026-05-03": { name: "Constitution Memorial Day", isSubstitue: false },
+  "2026-05-04": { name: "Greenery Day",           isSubstitue: false },
+  "2026-05-05": { name: "Children's Day",         isSubstitue: false },
+  "2026-05-06": { name: "Constitution Memorial Day Holiday", isSubstitue: true },
+  "2026-07-20": { name: "Marine Day",             isSubstitue: false },
+  "2026-08-11": { name: "Mountain Day",           isSubstitue: false },
+  "2026-09-21": { name: "Respect for the Aged Day", isSubstitue: false },
+  "2026-09-22": { name: "Bridge Holiday",         isSubstitue: false },
+  "2026-09-23": { name: "Autumnal Equinox Day",   isSubstitue: false },
+  "2026-10-12": { name: "Health and Sports Day",  isSubstitue: false },
+  "2026-11-03": { name: "Culture Day",            isSubstitue: false },
+  "2026-11-23": { name: "Labour Thanksgiving Day",       isSubstitue: false },
+
+  // First half of 2027 (up to July 22)
+  "2027-01-01": { name: "New Year's Day",         isSubstitue: false },
+  "2027-01-11": { name: "Coming of Age Day",      isSubstitue: false },
+  "2027-02-11": { name: "National Foundation Day",isSubstitue: false },
+  "2027-02-23": { name: "The Emperor's Birthday", isSubstitue: false },
+  "2027-03-20": { name: "Vernal Equinox Day",     isSubstitue: false },
+  "2027-04-29": { name: "Shōwa Day",              isSubstitue: false },
+  "2027-05-03": { name: "Constitution Memorial Day", isSubstitue: false },
+  "2027-05-04": { name: "Greenery Day",           isSubstitue: false },
+  "2027-05-05": { name: "Children's Day",         isSubstitue: false },
+  "2027-07-19": { name: "Marine Day",             isSubstitue: false },
+};
+
+// Helper to check if a date is a Japanese holiday
+function isJapaneseHoliday(date: Date): boolean {
+  const dateStr = d.format(date, 'yyyy-MM-dd');
+  return dateStr in japaneseHolidays;
+}
+
+// Helper to check if a date is a working day (not weekend, not holiday)
+function isWorkingDay(date: Date): boolean {
+  const dayOfWeek = date.getDay();
+  // Check if it's a weekend
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return false;
+  }
+  // Check if it's a Japanese holiday
+  if (isJapaneseHoliday(date)) {
+    return false;
+  }
+  return true;
+}
+
 // TODO: This doesn't really fit in this module anymore, should
 // probably live elsewhere
 export function bounds(month: DateLike): { start: number; end: number } {
@@ -241,21 +305,16 @@ export function bounds(month: DateLike): { start: number; end: number } {
   const year = monthDate.getFullYear();
   const monthIndex = monthDate.getMonth(); // 0-based
   
-  // Helper function to get payday (15th with weekend adjustments)
+  // Helper function to get payday (15th with weekend/holiday adjustments)
   const getPayday = (year: number, month: number) => {
-    const fifteenth = new Date(year, month, 15, 12);
-    const dayOfWeek = fifteenth.getDay();
+    let payday = new Date(year, month, 15, 12);
     
-    if (dayOfWeek === 0) {
-      // Sunday: payday is Friday the 13th
-      return new Date(year, month, 13, 12);
-    } else if (dayOfWeek === 6) {
-      // Saturday: payday is Friday the 14th
-      return new Date(year, month, 14, 12);
-    } else {
-      // Normal case: Mon-Fri, payday is the 15th
-      return fifteenth;
+    // If the 15th is not a working day, move to the previous working day
+    while (!isWorkingDay(payday)) {
+      payday = new Date(payday.getTime() - 24 * 60 * 60 * 1000); // Go back one day
     }
+    
+    return payday;
   };
 
   // Calculate current month's payday
