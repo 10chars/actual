@@ -101,7 +101,7 @@ const dateRangeOptions: dateRangeProps[] = [
     Yearly: false,
   },
   {
-    description: t('This month'),
+    description: t('This period'),
     key: 'This month',
     name: 0,
     type: 'Month',
@@ -111,7 +111,7 @@ const dateRangeOptions: dateRangeProps[] = [
     Yearly: false,
   },
   {
-    description: t('Last month'),
+    description: t('Last period'),
     key: 'Last month',
     name: 1,
     type: 'Month',
@@ -121,7 +121,7 @@ const dateRangeOptions: dateRangeProps[] = [
     Yearly: false,
   },
   {
-    description: t('Last 3 months'),
+    description: t('Last 3 periods'),
     key: 'Last 3 months',
     name: 3,
     type: 'Month',
@@ -131,7 +131,7 @@ const dateRangeOptions: dateRangeProps[] = [
     Yearly: false,
   },
   {
-    description: t('Last 6 months'),
+    description: t('Last 6 periods'),
     key: 'Last 6 months',
     name: 6,
     type: 'Month',
@@ -141,7 +141,7 @@ const dateRangeOptions: dateRangeProps[] = [
     Yearly: false,
   },
   {
-    description: t('Last 12 months'),
+    description: t('Last 12 periods'),
     key: 'Last 12 months',
     name: 12,
     type: 'Month',
@@ -211,7 +211,7 @@ const intervalOptions: intervalOptionsProps[] = [
   },
   //{ value: 3, description: 'Fortnightly', name: 3},
   {
-    description: t('Monthly'),
+    description: t('Pay Period'),
     key: 'Monthly',
     name: 'Month',
     // eslint-disable-next-line rulesdir/typography

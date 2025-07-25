@@ -219,6 +219,7 @@ function inferParam(param, type) {
       date: ['string'],
       'date-month': ['date'],
       'date-year': ['date', 'date-month'],
+      'date-payperiod': ['date'],
       id: ['string'],
       float: ['integer'],
     };
@@ -313,6 +314,100 @@ function castInput(state, expr, type) {
       return typed(
         `CAST(SUBSTR(${expr2.value}, 1, 4) AS integer)`,
         'date-year',
+      );
+    }
+  } else if (type === 'date-payperiod') {
+    let expr2;
+    if (expr.type === 'date') {
+      expr2 = expr;
+    } else if (expr.type === 'string') {
+      expr2 = parseDate(expr.value) || badDateFormat(expr.value, 'date-payperiod');
+    } else {
+      throw new CompileError(`Can't cast ${expr.type} to date-payperiod`);
+    }
+
+    if (expr2.literal) {
+      // For literal dates, calculate the pay period in JavaScript
+      const dateInt = parseInt(expr2.value.toString());
+      const year = Math.floor(dateInt / 10000);
+      const month = Math.floor((dateInt % 10000) / 100);
+      const day = dateInt % 100;
+      
+      const transactionDate = new Date(year, month - 1, day);
+      
+      // Japanese holidays (subset for compiler)
+      const japaneseHolidays = {
+        "2025-08-11": true, "2025-09-15": true, "2025-09-23": true, "2025-10-13": true, 
+        "2025-11-03": true, "2025-11-23": true, "2025-11-24": true,
+        "2026-01-01": true, "2026-01-12": true, "2026-02-11": true, "2026-02-23": true,
+        "2026-03-20": true, "2026-04-29": true, "2026-05-03": true, "2026-05-04": true,
+        "2026-05-05": true, "2026-05-06": true, "2026-07-20": true, "2026-08-11": true,
+        "2026-09-21": true, "2026-09-22": true, "2026-09-23": true, "2026-10-12": true,
+        "2026-11-03": true, "2026-11-23": true,
+        "2027-01-01": true, "2027-01-11": true, "2027-02-11": true, "2027-02-23": true,
+        "2027-03-20": true, "2027-04-29": true, "2027-05-03": true, "2027-05-04": true,
+        "2027-05-05": true, "2027-07-19": true,
+      };
+      
+      const isWorkingDay = (date: Date): boolean => {
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) return false; // Weekend
+        
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        return !japaneseHolidays[dateStr]; // Not a holiday
+      };
+
+      // Calculate which pay period this date belongs to
+      const getPayday = (year: number, month: number) => {
+        let payday = new Date(year, month, 15);
+        
+        // If the 15th is not a working day, move to the previous working day
+        while (!isWorkingDay(payday)) {
+          payday = new Date(payday.getTime() - 24 * 60 * 60 * 1000); // Go back one day
+        }
+        
+        return payday;
+      };
+      
+      let periodYear = year;
+      let periodMonth = month - 1; // 0-based for Date constructor
+      let currentPayday = getPayday(periodYear, periodMonth);
+      
+      if (transactionDate >= currentPayday) {
+        // Transaction is in current month's pay period
+        return typed(parseInt(`${periodYear}${String(periodMonth + 1).padStart(2, '0')}`), 'date-payperiod', { literal: true });
+      } else {
+        // Transaction is in previous month's pay period
+        periodMonth = periodMonth - 1;
+        if (periodMonth < 0) {
+          periodMonth = 11;
+          periodYear = year - 1;
+        }
+        return typed(parseInt(`${periodYear}${String(periodMonth + 1).padStart(2, '0')}`), 'date-payperiod', { literal: true });
+      }
+    } else {
+      // For database fields, create SQL that calculates the pay period
+      // This is complex SQL that determines pay period based on date
+      return typed(
+        `CASE 
+          WHEN (
+            CAST(SUBSTR(${expr2.value}, 7, 2) AS integer) >= 
+            CASE 
+              WHEN strftime('%w', CAST(SUBSTR(${expr2.value}, 1, 4) AS integer) || '-' || printf('%02d', CAST(SUBSTR(${expr2.value}, 5, 2) AS integer)) || '-15') = '0' THEN 13
+              WHEN strftime('%w', CAST(SUBSTR(${expr2.value}, 1, 4) AS integer) || '-' || printf('%02d', CAST(SUBSTR(${expr2.value}, 5, 2) AS integer)) || '-15') = '6' THEN 14  
+              ELSE 15
+            END
+          ) THEN CAST(SUBSTR(${expr2.value}, 1, 6) AS integer)
+          ELSE 
+            CASE 
+              WHEN CAST(SUBSTR(${expr2.value}, 5, 2) AS integer) = 1 THEN (CAST(SUBSTR(${expr2.value}, 1, 4) AS integer) - 1) * 100 + 12
+              ELSE CAST(SUBSTR(${expr2.value}, 1, 4) AS integer) * 100 + CAST(SUBSTR(${expr2.value}, 5, 2) AS integer) - 1
+            END
+        END`,
+        'date-payperiod',
       );
     }
   } else if (type === 'id') {
@@ -614,6 +709,10 @@ const compileFunction = saveStack('function', (state, func) => {
     case '$year': {
       validateArgLength(args, 1);
       return castInput(state, args[0], 'date-year');
+    }
+    case '$payPeriod': {
+      validateArgLength(args, 1);
+      return castInput(state, args[0], 'date-payperiod');
     }
 
     // various functions

@@ -12,14 +12,16 @@ export function makeQuery(
 ) {
   const intervalGroup =
     interval === 'Monthly'
-      ? { $month: '$date' }
+      ? { $payPeriod: '$date' } // Custom pay period grouping
       : interval === 'Yearly'
         ? { $year: '$date' }
         : { $day: '$date' };
   const intervalFilter =
     interval === 'Weekly'
       ? '$day'
-      : '$' + ReportOptions.intervalMap.get(interval)?.toLowerCase() || 'month';
+      : interval === 'Monthly'
+        ? '$payPeriod'
+        : '$' + ReportOptions.intervalMap.get(interval)?.toLowerCase() || 'month';
 
   const query = q('transactions')
     //Apply filters and split by "Group By"
